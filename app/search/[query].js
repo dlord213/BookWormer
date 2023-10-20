@@ -22,7 +22,7 @@ export default function QueryPage() {
   let subTitleColor = colorScheme === "light" ? "gray" : "gray";
 
   const [fetchedData, setFetchedData] = useState(undefined);
-  const [isFetched, setIsFetched] = useState(fetchedState === "true");
+  const [isFetched, setIsFetched] = useState(fetchedState);
 
   useEffect(() => {
     const getData = async () => {
@@ -34,7 +34,8 @@ export default function QueryPage() {
       setFetchedData(booksData.docs);
       setIsFetched(true);
     };
-    if (isFetched == false) {
+    if (fetchedState == "false") {
+      setIsFetched(false);
       setFetchedData(undefined);
       getData();
     }
