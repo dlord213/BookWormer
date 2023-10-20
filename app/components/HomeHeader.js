@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { View, Text, TextInput } from "react-native";
+import { Link } from "expo-router";
 import { ThemeContext } from "../../contexts/themeContext";
 import { darkPalettes } from "../../palettes/palettes";
 import { Ionicons } from "@expo/vector-icons";
@@ -71,7 +72,15 @@ export default function PageHeader(props) {
           <></>
         ) : (
           <>
-            <Ionicons name="md-search" size={36} color={searchBarColor} />
+            <Link
+              href={{
+                pathname: "/search/[query]",
+                params: { query: query, fetchedState: false },
+              }}
+              asChild
+            >
+              <Ionicons name="md-search" size={36} color={searchBarColor} />
+            </Link>
           </>
         )}
       </View>

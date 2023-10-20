@@ -70,16 +70,21 @@ export default function Layout() {
               ),
             }}
           />
+
+          <Tabs.Screen
+            name="search/[query]"
+            options={{
+              headerShown: false,
+              href: null,
+            }}
+          />
           <Tabs.Screen
             name="categories/index"
             options={{
               headerShown: false,
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="reorder-three" size={size} color={color} />
-              ),
+              href: null,
             }}
           />
-
           <Tabs.Screen
             name="categories/components/CategoriesHeader"
             options={{
