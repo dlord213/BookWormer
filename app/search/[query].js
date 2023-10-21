@@ -11,9 +11,77 @@ import { darkPalettes } from "../../palettes/palettes";
 import { useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 
+const RenderItem = (props) => {
+  const colorScheme = useContext(ThemeContext);
+
+  if (props.first_sentence === undefined) {
+    return null;
+  } else {
+    return (
+      <View>
+        {props.title === undefined ? null : (
+          <Text
+            style={{
+              color: colorScheme === "light" ? "black" : darkPalettes.text,
+              fontFamily: "WorkSans_600SemiBold",
+              fontSize: 20,
+            }}
+          >
+            {props.title}
+          </Text>
+        )}
+        {props.first_sentence === undefined ? null : (
+          <Text
+            style={{
+              color: "gray",
+              fontFamily: "WorkSans_300Light",
+            }}
+          >
+            {props.first_sentence[0]}
+          </Text>
+        )}
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 8,
+            justifyContent: "space-between",
+          }}
+        >
+          {props.author_name === undefined
+            ? null
+            : props.author_name.map((author, index) => (
+                <Text
+                  style={{
+                    color:
+                      colorScheme === "light" ? "black" : darkPalettes.text,
+                    fontFamily: "WorkSans_600SemiBold",
+                    fontSize: 12,
+                  }}
+                  key={index}
+                >
+                  {author}
+                </Text>
+              ))}
+          {props.first_publish_year === undefined ? null : (
+            <Text
+              style={{
+                color: "gray",
+                fontFamily: "WorkSans_300Light",
+                fontSize: 12,
+              }}
+            >
+              {props.first_publish_year}
+            </Text>
+          )}
+        </View>
+      </View>
+    );
+  }
+};
+
 export default function QueryPage() {
   const colorScheme = useContext(ThemeContext);
-  const { query, fetchedState } = useLocalSearchParams();
+  const { query, _isFetching } = useLocalSearchParams();
 
   let title = query.replace(/%20/g, " ");
   let finalQuery = query.replace(/ /g, "+");
@@ -22,7 +90,7 @@ export default function QueryPage() {
   let subTitleColor = colorScheme === "light" ? "gray" : "gray";
 
   const [fetchedData, setFetchedData] = useState(undefined);
-  const [isFetched, setIsFetched] = useState(fetchedState);
+  const [isFetching, setisFetching] = useState(_isFetching === "true");
 
   useEffect(() => {
     const getData = async () => {
@@ -32,14 +100,11 @@ export default function QueryPage() {
       const booksData = await response.json();
 
       setFetchedData(booksData.docs);
-      setIsFetched(true);
+      setisFetching(false);
     };
-    if (fetchedState == "false") {
-      setIsFetched(false);
-      setFetchedData(undefined);
-      getData();
-    }
-  }, []);
+
+    getData();
+  }, [isFetching]);
 
   return (
     <View
@@ -69,7 +134,7 @@ export default function QueryPage() {
       >
         {title}
       </Text>
-      {isFetched === false ? (
+      {isFetching === true ? (
         <ActivityIndicator
           size={96}
           color={titleColor}
@@ -78,85 +143,15 @@ export default function QueryPage() {
       ) : (
         <FlatList
           data={fetchedData}
+          style={{ flexGrow: 1, flex: 1 }}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
-            <View>
-              {item.isbn === undefined ? null : (
-                <Image
-                  source={{
-                    uri: `https://covers.openlibrary.org/b/isbn/${item.isbn[0]}-M.jpg`,
-                  }}
-                  style={{
-                    width: 200,
-                    height: 200,
-                    borderRadius: 8,
-                    margin: 8,
-                  }}
-                  contentFit="cover"
-                />
-              )}
-              <View>
-                {item.title === undefined ? null : (
-                  <Text
-                    style={{
-                      color:
-                        colorScheme === "light" ? "black" : darkPalettes.text,
-                      fontFamily: "WorkSans_600SemiBold",
-                      fontSize: 20,
-                    }}
-                  >
-                    {item.title}
-                  </Text>
-                )}
-
-                {item.first_sentence === undefined ? null : (
-                  <Text
-                    style={{
-                      color: "gray",
-                      fontFamily: "WorkSans_300Light",
-                    }}
-                  >
-                    {item.first_sentence[0]}
-                  </Text>
-                )}
-                <View
-                  style={{
-                    flexDirection: "row",
-                    gap: 8,
-                    justifyContent: "space-between",
-                  }}
-                >
-                  {item.author_name === undefined
-                    ? null
-                    : item.author_name.map((author, index) => (
-                        <Text
-                          style={{
-                            color:
-                              colorScheme === "light"
-                                ? "black"
-                                : darkPalettes.text,
-                            fontFamily: "WorkSans_600SemiBold",
-                            fontSize: 12,
-                          }}
-                          key={index}
-                        >
-                          {author}
-                        </Text>
-                      ))}
-                  {item.first_publish_year === undefined ? null : (
-                    <Text
-                      style={{
-                        color: "gray",
-                        fontFamily: "WorkSans_300Light",
-                        fontSize: 12,
-                      }}
-                    >
-                      {item.first_publish_year}
-                    </Text>
-                  )}
-                </View>
-              </View>
-            </View>
+            <RenderItem
+              title={item.title}
+              first_sentence={item.first_sentence}
+              author_name={item.author_name}
+              first_publish_year={item.first_publish_year}
+            />
           )}
         />
       )}

@@ -75,7 +75,7 @@ export default function PageHeader(props) {
             <Link
               href={{
                 pathname: "/search/[query]",
-                params: { query: query, fetchedState: false },
+                params: { query: query, _isFetching: true },
               }}
               asChild
             >
